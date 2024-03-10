@@ -21,7 +21,9 @@ func main() {
 	} else if command == "message" {
 		data := util.GetDataToArraysString(args[1])
 		fmt.Printf("Enemy message decoded: '%s'\n", usecase.GetMessage(data))
+	} else if command == "server" {
+		Server()
 	} else {
-		fmt.Printf("Command: %s not available, use 'message' or 'location'\n", command)
+		fmt.Printf("Command: %s not available, use 'message' 'location' or 'server'\n", command)
 	}
 }
