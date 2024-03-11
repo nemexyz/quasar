@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+
+  mariadb:
+    image: mariadb
+    container_name: ${APP_NAME}_mariadb
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 3306:3306
+    environment:
+      # MARIADB_AUTO_UPGRADE: 1
+      MARIADB_DATABASE: $DB_DATABASE
+      MARIADB_USER: $DB_USERNAME
+      MARIADB_PASSWORD: $DB_PASSWORD
+      MARIADB_ROOT_PASSWORD: $DB_ROOT_PASSWORD
+    volumes:
+      - dbdata:/var/lib/mysql/
+      - ./db:/docker-entrypoint-initdb.d
+
+volumes:
+  dbdata:
+    driver: local
