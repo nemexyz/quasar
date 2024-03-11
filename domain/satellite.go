@@ -1,37 +1,38 @@
 package domain
 
 import (
+	"errors"
 	"math"
 )
 
 type Satellite struct {
-	name        string
-	distance    float64
-	message     []string
-	coordinates [2]float64
+	Name        string     `json:"name"`
+	Distance    float64    `json:"distance"`
+	Message     []string   `json:"message"`
+	Coordinates [2]float64 `json:"coordinates"`
 }
 
 func NewSatellite(name string, coordinates [2]float64) *Satellite {
 	return &Satellite{
-		name:        name,
-		coordinates: coordinates,
+		Name:        name,
+		Coordinates: coordinates,
 	}
 }
 
 func (s *Satellite) ReceiveMessage(distance float64, message []string) {
-	s.distance = distance
-	s.message = message
+	s.Distance = distance
+	s.Message = message
 }
 
 func (s *Satellite) FixMsgDelay(realLength int) {
-	s.message = s.message[len(s.message)-realLength:]
+	s.Message = s.Message[len(s.Message)-realLength:]
 }
 
-func (s *Satellite) IntersectionWith(satellite *Satellite) [][2]float64 {
-	return s.GetRadiusIntersection(s.coordinates, s.distance, satellite.coordinates, satellite.distance)
+func (s *Satellite) IntersectionWith(satellite *Satellite) ([][2]float64, error) {
+	return s.GetRadiusIntersection(s.Coordinates, s.Distance, satellite.Coordinates, satellite.Distance)
 }
 
-func (s *Satellite) GetRadiusIntersection(p0 [2]float64, r0 float64, p1 [2]float64, r1 float64) [][2]float64 {
+func (s *Satellite) GetRadiusIntersection(p0 [2]float64, r0 float64, p1 [2]float64, r1 float64) ([][2]float64, error) {
 	x0 := p0[0]
 	y0 := p0[1]
 	x1 := p1[0]
@@ -42,15 +43,15 @@ func (s *Satellite) GetRadiusIntersection(p0 [2]float64, r0 float64, p1 [2]float
 
 	// No solution. circles do not intersect
 	if d > (r0 + r1) {
-		panic("Error: cannot find location with given data")
+		return nil, errors.New("cannot find location with given data")
 	}
 	// No solution. one circle is contained in the other
 	if d < math.Abs(r0-r1) {
-		panic("Error: cannot find location with given data")
+		return nil, errors.New("cannot find location with given data")
 	}
 	// No solution. circles are the same
 	if d == 0 && r0 == r1 {
-		panic("Error: cannot find location with given data")
+		return nil, errors.New("cannot find location with given data")
 	}
 
 	a := ((r0 * r0) - (r1 * r1) + (d * d)) / (2.0 * d)
@@ -68,7 +69,7 @@ func (s *Satellite) GetRadiusIntersection(p0 [2]float64, r0 float64, p1 [2]float
 	yi := round(y2 + ry)
 	yiP := round(y2 - ry)
 
-	return [][2]float64{{xi, yi}, {xiP, yiP}}
+	return [][2]float64{{xi, yi}, {xiP, yiP}}, nil
 }
 
 func round(num float64) float64 {

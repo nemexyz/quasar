@@ -1,15 +1,15 @@
 package main
 
 import (
+	"quasar/api/routes"
+
 	"github.com/gin-gonic/gin"
 )
 
 func Server() {
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+
+	routes.SetupPublicRoutes(r)
+
 	r.Run()
 }
