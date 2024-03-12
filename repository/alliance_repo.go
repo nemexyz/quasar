@@ -80,7 +80,7 @@ func (r *SatelliteRepository) GetLastMessageFrom(name string) (float64, []string
 	}
 
 	var m Message
-	result = r.db.Where("satellite = ?", s.ID).Order("date desc").First(&m)
+	result = r.db.Where("satellite_id = ?", s.ID).Order("date desc").First(&m)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return 0, nil, nil
@@ -89,7 +89,7 @@ func (r *SatelliteRepository) GetLastMessageFrom(name string) (float64, []string
 	}
 
 	var words []Word
-	result = r.db.Where("message = ?", m.ID).Order("pos asc").Find(&words)
+	result = r.db.Where("message_id = ?", m.ID).Order("position asc").Find(&words)
 	if result.Error != nil {
 		return 0, nil, result.Error
 	}

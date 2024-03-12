@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"fmt"
 	"io"
 	"net/http"
+	"quasar/api/models"
 	"quasar/domain"
 	"quasar/repository"
 
@@ -14,12 +14,10 @@ var repo = repository.NewSatelliteRepository()
 
 func getEnemies(satellites []domain.Satellite) (domain.AllianceResponse, error) {
 	alliance := domain.NewAlliance(satellites)
-	fmt.Println("Alliance:", alliance)
 	location, err := alliance.FindEnemyLocation()
 	if err != nil {
 		return domain.AllianceResponse{}, err
 	}
-	fmt.Println("Location:", location)
 	message := alliance.Decode()
 	return domain.AllianceResponse{
 		Position: domain.PositionResponse{
@@ -54,6 +52,37 @@ func PostTopSecret(c *gin.Context) {
 	}
 
 	result, err := getEnemies(list)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+func PostTopSecretSplit(c *gin.Context) {
+	var body models.TSSRequestBody
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := repo.SaveMessage(c.Param("satellite_name"), body.Distance, body.Message); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Satellite not found"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": "Message saved"})
+	}
+}
+
+func GetTopSecretSplit(c *gin.Context) {
+	satellites, err := repo.GetAllSatellitesWithLastMessages()
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	dereferencedSatellites := make([]domain.Satellite, len(satellites))
+	for i, satellite := range satellites {
+		dereferencedSatellites[i] = *satellite
+	}
+	result, err := getEnemies(dereferencedSatellites)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
