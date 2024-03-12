@@ -1,6 +1,19 @@
 version: '3.8'
 services:
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${APP_NAME}_app
+    container_name: ${APP_NAME}_app
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - 80:8080
+    depends_on:
+      - mariadb
+
   mariadb:
     image: mariadb
     container_name: ${APP_NAME}_mariadb

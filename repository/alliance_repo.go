@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
 	"quasar/domain"
 	"time"
 
@@ -16,7 +17,12 @@ type SatelliteRepository struct {
 }
 
 func NewSatelliteRepository() *SatelliteRepository {
-	dsn := "quser:topsecret123@tcp(127.0.0.1:3306)/quasar?charset=utf8mb4&parseTime=True&loc=Local"
+	user := os.Getenv("DB_USERNAME")
+	password := os.Getenv("DB_PASSWORD")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	dbname := os.Getenv("DB_DATABASE")
+	dsn := user + ":" + password + "@tcp(" + host + ":" + port + ")/" + dbname + "?charset=utf8mb4&parseTime=True&loc=Local"
 	sqlDB, err := sql.Open("mysql", dsn)
 	if err != nil {
 		panic(err)
