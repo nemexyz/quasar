@@ -17,6 +17,12 @@ type SatelliteRepository struct {
 }
 
 func NewSatelliteRepository() *SatelliteRepository {
+	args := os.Args[1:]
+	command := args[0]
+	if command != "server" { // Execution of commands functions without singleton
+		return nil
+	}
+
 	user := os.Getenv("DB_USERNAME")
 	password := os.Getenv("DB_PASSWORD")
 	host := os.Getenv("DB_HOST")
